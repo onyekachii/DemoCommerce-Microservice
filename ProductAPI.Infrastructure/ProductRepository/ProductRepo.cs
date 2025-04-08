@@ -1,19 +1,20 @@
 ﻿using eCommerce.SharedLibrary.Logs;
 using eCommerce.SharedLibrary.Responses;
+using Microsoft.EntityFrameworkCore;
 using ProductAPI.Domain.Entities;
+using ProductAPI.Domain.Interface;
 using ProductAPI.Infrastructure.DbContexts;
-using ProductAPI.Infrastructure.Interfaces;
 using System.Linq.Expressions;
 
 namespace ProductAPI.Infrastructure.ProductRepository
 {
-    internal class ProductRepo(ProductDbContext context) : IProductRepo
+    internal class ProductRepo(ProductDbContext context) : IProduct
     {
         public async Task<Response> CreateAsync(Product entity)
         {
             try
             {
-                var getProduct = await GetByAsync(_ => _.Name.Equals(entity.Name));
+                var getProduct = await GetByAsync(p => p.Name.Equals(entity.Name));
                 if (getProduct is not null) 
                 {
                     return new Response(false, $"{entity.Name} already added");
@@ -29,7 +30,7 @@ namespace ProductAPI.Infrastructure.ProductRepository
             }
         }
 
-        public async Task<Response> Delete(Product entity)
+        public async Task<Response> DeleteAsync(Product entity)
         {
             try
             {
@@ -54,10 +55,7 @@ namespace ProductAPI.Infrastructure.ProductRepository
             try
             {
                 var product = await context.Products.FindAsync(id);
-                if (product is not null)
-                    return product;
-                else
-                    return null;
+                return product is not null ? product :null;
             }
             catch (Exception ex)
             {
@@ -66,19 +64,49 @@ namespace ProductAPI.Infrastructure.ProductRepository
             }
         }
 
-        public Task<IEnumerable<Product>> GetAllAsync()
+        public async Task<IEnumerable<Product>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            try
+            {
+                return await context.Products.AsNoTracking().ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                LogException.LogExceptions(ex);
+                throw new Exception("Error occured while trying to products");
+            }
         }
 
-        public Task<Product> GetByAsync(Expression<Func<Product, bool>> predicate)
+        public async Task<Product> GetByAsync(Expression<Func<Product, bool>> predicate)
         {
-            throw new NotImplementedException();
+            try
+            {
+                return await context.Products.Where(predicate).FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                LogException.LogExceptions(ex);
+                throw new Exception("Error occured while trying to find product");
+            }
         }
 
-        public Task<Response> Update(Product entity)
+        public async Task<Response> UpdateAsync(Product entity)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var product = await context.Products.FindAsync(entity.Id);
+                if( product is null)
+                    return new Response(false, $"{entity.Name} not found");
+                context.Entry(product).State = EntityState.Detached;
+                context.Products.Update(entity);
+                await context.SaveChangesAsync();
+                return new Response(true, $"{entity.Name} updated");
+            }
+            catch (Exception ex)
+            {
+                LogException.LogExceptions(ex);
+                return new Response(false, "Error occured while trying to find product");
+            }
         }
     }
 }

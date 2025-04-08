@@ -10,8 +10,4 @@
     <ProjectReference Include="..\..\DemoCommerce.SharedLib\eCommerce.SharedLibrary\eCommerce.SharedLibrary.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Interface\" />
-  </ItemGroup>
-
 </Project>
