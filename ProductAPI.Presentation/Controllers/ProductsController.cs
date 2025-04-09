@@ -17,12 +17,13 @@ namespace ProductAPI.Presentation.Controllers
             if (products is not null)
             {
                 var (_, productsDTO) = ProductMapper.FromEntity(null, products);
-                return Ok(productsDTO);
+                if(productsDTO?.Count() > 1)
+                    return Ok(productsDTO);
             }
-            return NotFound("No products found");
+            return NotFound("No product found");
         }
 
-        [HttpGet("{id: int}")]
+        [HttpGet("/id")]
         public async Task<IActionResult> GetProduct(int id)
         {
             var product = await productInterface.FindByIdAsync(id);
