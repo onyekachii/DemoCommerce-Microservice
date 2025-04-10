@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using eCommerce.SharedLibrary.DTO;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using ProductAPI.App.DTO;
 using ProductAPI.App.Mapper;
 using ProductAPI.Domain.Interface;
 

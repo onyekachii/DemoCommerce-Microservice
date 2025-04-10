@@ -1,4 +1,4 @@
-﻿using ProductAPI.App.DTO;
+﻿using eCommerce.SharedLibrary.DTO;
 using ProductAPI.Domain.Entities;
 
 namespace ProductAPI.App.Mapper
